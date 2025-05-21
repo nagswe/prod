@@ -1,0 +1,97 @@
+create proc ed_data_sp (@deptno int)
+as
+begin
+select* from emp where deptno=@deptno
+select * from dept where deptno=@deptno
+end
+
+exec ed_data_sp @deptno=10
+
+create proc empsp2
+as
+begin
+select * from emp
+end
+
+exec empsp2
+
+-------sp with input parameter----
+
+create proc getdatafromdeptno_sp (@did int)
+as
+begin
+select * from emp where deptno =@did
+end
+
+exec getdatafromdeptno_sp 30
+
+select * from ord where pname ='laptop' and state_id='ap'
+
+create proc getdatafromord_pnsi (@pname varchar(50),@sid varchar(50))
+as
+begin
+select * from ord where pname=@pname and state_id=@sid
+end
+
+exec getdatafromord_pnsi 'laptop','ap'
+
+----sp with output parameters-----
+
+create proc emp_output_sp (@total_emps int output) 
+as
+begin
+select * from emp
+select @total_emps=@@rowcount
+end
+
+declare @total_employees int
+exec emp_output_sp @total_emps=@total_employees output
+select @total_employees as 'total emps of emp_table'
+
+
+alter proc emp_output_sp (@total_emps int output)
+as
+begin
+select * from dept
+select @total_emps=@@rowcount
+end
+
+
+create proc ord_Op (@total_sales1 money output)
+as
+begin
+select * from ord
+select @total_sales1=sum(ta) from ord
+end
+
+declare @t_sales money
+exec ord_Op @total_sales1= @t_sales output
+select @t_sales as 'total sales column'
+
+create proc ord_detailsbypname_sp1
+(@pname varchar(50),@total_orders int output)
+as
+begin
+select * from ord where pname=@pname
+select @total_orders=@@rowcount
+end
+
+declare @tl_orders int
+exec ord_detailsbypname_sp1
+             @pname='mobile',
+             @total_orders = @tl_orders output
+select @tl_orders as 'total orders'
+
+alter proc ord_detailsbypname_sp1
+(@pname varchar(50),@t_qty float output)
+as
+begin
+select * from ord where pname=@pname
+select @t_qty=sum(qty) from ord where pname=@pname
+end
+
+declare @tq int
+exec ord_detailsbypname_sp1
+             @pname='laptop',
+             @t_qty=@tq output
+select @tq as 'total orders'
